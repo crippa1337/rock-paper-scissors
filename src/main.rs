@@ -1,6 +1,8 @@
 use rand::Rng;
 use std::io::stdin;
-
+//TODO implement lives
+//TODO implement score tracking
+//TODO maybe remove unecessary enum usage?
 enum Hands {
     ROCK,
     PAPER,
@@ -57,7 +59,7 @@ fn will_it_win(hand: String, opp_hand: String) -> String {
     const EVEN: &str = "It's even!";
     const LOSS: &str = "You lose!";
 
-    let condition = match hand.as_str() {
+    let condition: String = match hand.as_str() {
         "ROCK" => match opp_hand.as_str() {
             "ROCK" => String::from(EVEN),
             "PAPER" => String::from(LOSS),
