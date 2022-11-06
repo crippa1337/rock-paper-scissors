@@ -2,6 +2,7 @@ use rand::Rng;
 use std::io::stdin;
 //TODO implement lives
 //TODO implement score tracking
+//TODO implement blazingly fast time tracking
 //TODO maybe remove unecessary enum usage?
 enum Hands {
     ROCK,
@@ -13,7 +14,7 @@ fn main() {
     const DOTTED_LINE: &str = "----------------------------";
     let mut lives: u8 = 3; //TODO
 
-    println!("Welcome to RPS.\nYou'll start with {lives} lives.");
+    println!("Welcome to 🚀RPS🚀\nYou'll start with {lives} lives.");
     loop {
         println!("What do you want to play?\n{DOTTED_LINE}");
         let mut input: String = String::new();
@@ -55,9 +56,9 @@ fn computer_hand() -> String {
 }
 
 fn will_it_win(hand: String, opp_hand: String) -> String {
-    const WIN: &str = "You win!";
-    const EVEN: &str = "It's even!";
-    const LOSS: &str = "You lose!";
+    const WIN: &str = "You win! 🤑";
+    const EVEN: &str = "It's even! 😐";
+    const LOSS: &str = "You lose! 💀";
 
     let condition: String = match hand.as_str() {
         "ROCK" => match opp_hand.as_str() {
