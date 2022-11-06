@@ -1,6 +1,12 @@
 use rand::Rng;
 use std::io::stdin;
 
+enum Hands {
+    ROCK,
+    PAPER,
+    SCISSORS,
+}
+
 fn main() {
     const DOTTED_LINE: &str = "----------------------------";
     let mut lives: u8 = 3; //TODO
@@ -26,12 +32,6 @@ fn main() {
             will_it_win(input.trim().to_uppercase(), comp_pick.clone())
         );
     }
-}
-
-enum Hands {
-    ROCK,
-    PAPER,
-    SCISSORS,
 }
 
 fn value_of_hand(hum_hand: Hands) -> String {
