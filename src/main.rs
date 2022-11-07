@@ -52,7 +52,7 @@ const EVEN: &str = "It's even! 😐🤨😴";
 const LOSS: &str = "You lose! 💀😭🤬";
 fn main() {
     println!(
-        "{}\nWelcome to 🚀RPS🚀\nInput 'QUIT' to quit 😁",
+        "{}\nWelcome to Rock, Paper, Scissors\n🚀 Written 100% in Rust 🚀\nInput 'QUIT' to quit 😁",
         DOTTED_LINE
     );
     'main_loop: loop {
@@ -72,8 +72,8 @@ fn main() {
                 "QUIT" => break 'main_loop,
                 _ => {
                     println!(
-                        "{} is an invalid input, please try again.\n{}",
-                        input, DOTTED_LINE
+                        "{} is an invalid input, please try again.\n{DOTTED_LINE}",
+                        input
                     );
                     continue;
                 }
