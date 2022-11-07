@@ -1,5 +1,6 @@
 use rand::Rng;
 use std::io::stdin;
+use std::time::{Duration, Instant};
 //TODO implement score tracking
 //TODO implement blazingly fast time tracking
 
@@ -56,13 +57,10 @@ fn main() {
         DOTTED_LINE
     );
     'main_loop: loop {
-        let comp_pick = computer_hand();
         let player_pick = loop {
             println!("Input your hand: ROCK🪨, PAPER📃 or SCISSORS✂️\n{DOTTED_LINE}");
             let mut input: String = String::new();
-            stdin()
-                .read_line(&mut input)
-                .expect("Failed to read input.");
+            stdin().read_line(&mut input).unwrap();
 
             let input = String::from(input.to_uppercase().trim());
             break match input.as_str() {
@@ -79,6 +77,9 @@ fn main() {
                 }
             };
         };
+        let instant = Instant::now();
+        // computers hand
+        let comp_pick = computer_hand();
         // result variable to be printed at game conclusion
         let result: String;
         // using PartialEq, see if player_pick (Hands) is equal to comp_pick (Hands)
@@ -89,16 +90,17 @@ fn main() {
         } else if player_pick.win() == comp_pick {
             // set result to win since the winning matchup is achieved
             result = String::from(WIN)
-        // only case left is if the player isn't even or won against the computer, which means it's a loss
+        // only case left is if the player hasn't won or is even against the computer, which means it's a loss
         } else {
             // set result to loss
             result = String::from(LOSS)
         };
 
         println!(
-            "Confirmed pick as: [{}]\nSuperA.I picks:    [{}]\n{result}\n{DOTTED_LINE}",
+            "[TIME: {:?}]\nConfirmed pick as: [{}]\nSuperA.I picks:    [{}]\n{result}\n{DOTTED_LINE}",
+            instant.elapsed(),
             player_pick.to_string(),
-            comp_pick.to_string(),
+            comp_pick.to_string()
         );
     }
 }
