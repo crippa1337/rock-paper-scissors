@@ -1,8 +1,8 @@
 use rand::Rng;
 use std::io::stdin;
+use std::thread;
 use std::time::{Duration, Instant};
 //TODO implement score tracking
-//TODO implement blazingly fast time tracking
 
 // for equality checks between instances
 #[derive(PartialEq)]
@@ -35,7 +35,7 @@ impl Hands {
 
 // function to randomly make a hand for the computer, returns a Hands instance
 fn computer_hand() -> Hands {
-    // create comp_hand variable that is set to a random number from 1 to 3
+    // create comp_hand variable that is set to a random integer from 1 to 3
     let comp_hand: u8 = rand::thread_rng().gen_range(1..=3);
     // match the number to an instance of Hands
     match comp_hand {
@@ -53,9 +53,10 @@ const EVEN: &str = "It's even! 😐🤨😴";
 const LOSS: &str = "You lose! 💀😭🤬";
 fn main() {
     println!(
-        "{}\nWelcome to Rock, Paper, Scissors\n🚀 Written 100% in Rust 🚀\nInput 'QUIT' to quit 😁",
+        "{}\nWelcome to Rock, Paper, Scissors\n🚀 Written in 100% Rust 🚀\nInput 'QUIT' to quit 😁",
         DOTTED_LINE
     );
+
     'main_loop: loop {
         let player_pick = loop {
             println!("Input your hand: ROCK🪨, PAPER📃 or SCISSORS✂️\n{DOTTED_LINE}");
@@ -67,7 +68,11 @@ fn main() {
                 "ROCK" => Hands::Rock,
                 "PAPER" => Hands::Paper,
                 "SCISSORS" => Hands::Scissors,
-                "QUIT" => break 'main_loop,
+                "QUIT" => {
+                    println!("Exiting. . .");
+                    thread::sleep(Duration::from_secs(1));
+                    break 'main_loop;
+                }
                 _ => {
                     println!(
                         "{} is an invalid input, please try again.\n{DOTTED_LINE}",
@@ -77,8 +82,9 @@ fn main() {
                 }
             };
         };
+        // instant variable set to an Instant created for benchmarking purposes
         let instant = Instant::now();
-        // computers hand
+        // assign a random hand to comp_pick
         let comp_pick = computer_hand();
         // result variable to be printed at game conclusion
         let result: String;
@@ -98,6 +104,7 @@ fn main() {
 
         println!(
             "[TIME: {:?}]\nConfirmed pick as: [{}]\nSuperA.I picks:    [{}]\n{result}\n{DOTTED_LINE}",
+            // how many seconds has elapsed since the instant Instant was created
             instant.elapsed(),
             player_pick.to_string(),
             comp_pick.to_string()
