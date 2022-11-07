@@ -51,7 +51,7 @@ const EVEN: &str = "It's even! 😐🤨😴";
 const LOSS: &str = "You lose! 💀😭🤬";
 fn main() {
     println!(
-        "{}\nWelcome to the 🚀blazingly fast🚀 Rock, Paper, Scissors\nInput 'QUIT' to quit 😁",
+        "{}\nWelcome to Rock, Paper, Scissors\n🚀 Blazingly Fast Edition 🚀\nInput 'QUIT' to quit 😁",
         DOTTED_LINE
     );
 
