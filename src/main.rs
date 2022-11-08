@@ -1,3 +1,4 @@
+use clearscreen;
 use rand::Rng;
 use std::io::stdin;
 use std::thread;
@@ -49,9 +50,12 @@ const DOTTED_LINE: &str = "------------------------------------------------";
 const WIN: &str = "You win! 🚀🤑🚀";
 const EVEN: &str = "It's even! 😐🤨😴";
 const LOSS: &str = "You lose! 💀😭🤬";
+
 fn main() {
+    let mut wlt: [u32; 3] = [0, 0, 0];
+
     println!(
-        "{}\nWelcome to Rock, Paper, Scissors\n🚀 Blazingly Fast Edition 🚀\nInput 'QUIT' to quit 😁",
+        "{}\nWelcome to Rock, Paper, Scissors\n🚀 Blazingly Fast Edition 🚀\nInput 'QUIT' to quit 😁\nInput 'CLEAR' to clear the screen 😎",
         DOTTED_LINE
     );
 
@@ -66,6 +70,17 @@ fn main() {
                 "ROCK" => Hands::Rock,
                 "PAPER" => Hands::Paper,
                 "SCISSORS" => Hands::Scissors,
+                "STATS" => {
+                    println!(
+                        "WINS [{}]\nLOSSES [{}]\nTIES [{}]\n{DOTTED_LINE}",
+                        wlt[0], wlt[1], wlt[2]
+                    );
+                    continue;
+                }
+                "CLEAR" => {
+                    clearscreen::clear().expect("failed to clear screen");
+                    continue;
+                }
                 "QUIT" => {
                     println!("Exiting. . .");
                     thread::sleep(Duration::from_secs(1));
@@ -89,15 +104,18 @@ fn main() {
         // using PartialEq, see if player_pick (Hands) is equal to comp_pick (Hands)
         if player_pick == comp_pick {
             // set result to even since both inputs are the same
-            result = String::from(EVEN)
+            result = String::from(EVEN);
+            wlt[2] += 1
         // see if the winning matchup of player_pick is equal to comp_pick
         } else if player_pick.win() == comp_pick {
             // set result to win since the winning matchup is achieved
-            result = String::from(WIN)
+            result = String::from(WIN);
+            wlt[0] += 1
         // only case left is if the player hasn't won or isn't even against the computer, which means it's a loss
         } else {
             // set result to loss
-            result = String::from(LOSS)
+            result = String::from(LOSS);
+            wlt[1] += 1
         };
 
         println!(
