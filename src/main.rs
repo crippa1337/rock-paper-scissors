@@ -1,8 +1,13 @@
 use clearscreen;
+use platform_dirs::AppDirs;
 use rand::Rng;
-use std::io::stdin;
-use std::thread;
-use std::time::{Duration, Instant};
+use std::{
+    fs::{self, File},
+    io::{stdin, BufRead, BufReader, Write},
+    thread,
+    time::{Duration, Instant},
+};
+
 //TODO implement score tracking
 
 // for equality checks between instances
@@ -54,6 +59,16 @@ const LOSS: &str = "You lose! 💀😭🤬";
 fn main() {
     let mut wlt: [u32; 3] = [0, 0, 0];
 
+    let stats_dirs = AppDirs::new(Some("rps_crippa"), false).unwrap();
+    let path = stats_dirs.state_dir.join("stats.txt");
+
+    let f = File::open(&path).expect("Unable to open stats file");
+    let f = BufReader::new(f);
+    for line in f.lines() {
+        let line = line.unwrap();
+        println!("{}", line);
+    }
+
     println!(
         "{}\nWelcome to Rock, Paper, Scissors\n🚀 Blazingly Fast Edition 🚀\nInput 'QUIT' to quit 😁\nInput 'CLEAR' to clear the screen 😎",
         DOTTED_LINE
@@ -78,10 +93,15 @@ fn main() {
                     continue;
                 }
                 "CLEAR" => {
-                    clearscreen::clear().expect("failed to clear screen");
+                    clearscreen::clear().expect("Failed to clear screen");
                     continue;
                 }
                 "QUIT" => {
+                    fs::create_dir_all(&stats_dirs.state_dir).unwrap();
+                    let file = File::create(&path).unwrap();
+                    write!(&file, "{}\n{}\n{}", wlt[0], wlt[1], wlt[2])
+                        .expect("Failed to write to file");
+
                     println!("Exiting. . .");
                     thread::sleep(Duration::from_secs(1));
                     break 'main_loop;
