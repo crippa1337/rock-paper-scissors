@@ -1,4 +1,3 @@
-//use clearscreen;
 use platform_dirs::AppDirs;
 use rand::Rng;
 use std::{
@@ -7,8 +6,6 @@ use std::{
     thread,
     time::{Duration, Instant},
 };
-
-//TODO implement score tracking
 
 // for equality checks between instances
 #[derive(PartialEq)]
@@ -55,11 +52,19 @@ fn clear() {
     print!("\x1B[2J\x1B[1;1H");
 }
 
+fn save_data(wlt: [u32; 3]) {
+    let stats_dirs = AppDirs::new(Some("rps_crippa"), false).unwrap();
+    let path = stats_dirs.state_dir.join("stats.txt");
+
+    fs::create_dir_all(&stats_dirs.state_dir).unwrap();
+    let file = File::create(&path).unwrap();
+    write!(&file, "{}\n{}\n{}", wlt[0], wlt[1], wlt[2]).expect("Failed to write to file");
+}
+
 const DOTTED_LINE: &str = "------------------------------------------------";
 const WIN: &str = "You win! 🚀🤑🚀";
 const EVEN: &str = "It's even! 😐🤨😴";
 const LOSS: &str = "You lose! 💀😭🤬";
-
 fn main() {
     let mut wlt: [u32; 3] = [0, 0, 0];
 
@@ -96,10 +101,7 @@ fn main() {
                 "SCISSORS" => Hands::Scissors,
                 "STATS" => {
                     clear();
-                    println!(
-                        "WINS [{}]\nLOSSES [{}]\nTIES [{}]\n{DOTTED_LINE}",
-                        wlt[0], wlt[1], wlt[2]
-                    );
+                    println!("WINS [{}]\nLOSSES [{}]\nTIES [{}]", wlt[0], wlt[1], wlt[2]);
                     continue;
                 }
                 "QUIT" | "EXIT" => {
@@ -141,9 +143,7 @@ fn main() {
             wlt[1] += 1
         };
 
-        fs::create_dir_all(&stats_dirs.state_dir).unwrap();
-        let file = File::create(&path).unwrap();
-        write!(&file, "{}\n{}\n{}", wlt[0], wlt[1], wlt[2]).expect("Failed to write to file");
+        save_data(wlt);
 
         clear();
         println!(
