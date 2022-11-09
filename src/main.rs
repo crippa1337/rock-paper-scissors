@@ -51,6 +51,10 @@ fn computer_hand() -> Hands {
     }
 }
 
+fn clear() {
+    print!("\x1B[2J\x1B[1;1H");
+}
+
 const DOTTED_LINE: &str = "------------------------------------------------";
 const WIN: &str = "You win! 🚀🤑🚀";
 const EVEN: &str = "It's even! 😐🤨😴";
@@ -91,27 +95,21 @@ fn main() {
                 "PAPER" => Hands::Paper,
                 "SCISSORS" => Hands::Scissors,
                 "STATS" => {
+                    clear();
                     println!(
                         "WINS [{}]\nLOSSES [{}]\nTIES [{}]\n{DOTTED_LINE}",
                         wlt[0], wlt[1], wlt[2]
                     );
                     continue;
                 }
-                "CLEAR" => {
-                    print!("\x1B[2J\x1B[1;1H");
-                    continue;
-                }
                 "QUIT" => {
-                    fs::create_dir_all(&stats_dirs.state_dir).unwrap();
-                    let file = File::create(&path).unwrap();
-                    write!(&file, "{}\n{}\n{}", wlt[0], wlt[1], wlt[2])
-                        .expect("Failed to write to file");
-
+                    clear();
                     println!("Exiting. . .");
                     thread::sleep(Duration::from_secs(1));
                     break 'main_loop;
                 }
                 _ => {
+                    clear();
                     println!(
                         "{} is an invalid input, please try again.\n{DOTTED_LINE}",
                         input
@@ -143,6 +141,11 @@ fn main() {
             wlt[1] += 1
         };
 
+        fs::create_dir_all(&stats_dirs.state_dir).unwrap();
+        let file = File::create(&path).unwrap();
+        write!(&file, "{}\n{}\n{}", wlt[0], wlt[1], wlt[2]).expect("Failed to write to file");
+
+        clear();
         println!(
             "🚀 [TIME: {:?}] 🚀\nConfirmed pick as: [{}]\nSuperA.I picks:    [{}]\n{result}\n{DOTTED_LINE}",
             // how many seconds has elapsed since the instant Instant was created
