@@ -93,7 +93,7 @@ fn main() {
     }
 
     println!(
-        "{}\n             Rock, Paper, Scissors\n          🚀 Blazingly Fast Edition 🚀\n{DOTTED_LINE}\nInput 'STATS' to see your stats 📈😎\nInput 'QUIT' or 'EXIT' to close the window✌️😁",
+        "{}\n             Rock, Paper, Scissors\n          🚀 Blazingly Fast Edition 🚀\n{DOTTED_LINE}\n'STATS' to see your stats 📈😎\n'HARD' to toggle hard mode 😈🤖\n'RESET' to reset stats ♻️🗑️\n'QUIT' or 'EXIT' to close the window✌️😁",
         DOTTED_LINE
     );
 
@@ -138,12 +138,13 @@ fn main() {
                 }
                 "HARD" => {
                     clear();
-                    for i in "Hard mode activated . . .\n".chars() {
+                    for i in "Toggling hard mode . . .\n".chars() {
                         print!("{i}");
                         stdout().flush().unwrap();
                         thread::sleep(Duration::from_millis(50));
                     }
-                    hard_mode = true;
+                    hard_mode ^= true;
+                    println!("Hard mode set to: {}", hard_mode);
                     continue;
                 }
                 _ => {
