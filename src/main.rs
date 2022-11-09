@@ -62,15 +62,20 @@ fn main() {
     let stats_dirs = AppDirs::new(Some("rps_crippa"), false).unwrap();
     let path = stats_dirs.state_dir.join("stats.txt");
 
-    let f = File::open(&path).expect("Unable to open stats file");
-    let f = BufReader::new(f);
-    for line in f.lines() {
-        let line = line.unwrap();
-        println!("{}", line);
+    if path.exists() {
+        let f = File::open(&path).expect("Unable to open stats file");
+        let f = BufReader::new(f);
+        let mut index = 0;
+        for line in f.lines() {
+            let line = line.unwrap();
+            let line = line.parse::<u32>().unwrap();
+            wlt[index] = line;
+            index += 1;
+        }
     }
 
     println!(
-        "{}\nWelcome to Rock, Paper, Scissors\n🚀 Blazingly Fast Edition 🚀\nInput 'QUIT' to quit 😁\nInput 'CLEAR' to clear the screen 😎",
+        "{}\nWelcome to Rock, Paper, Scissors\n🚀 Blazingly Fast Edition 🚀\nInput 'QUIT' to quit & save 😁\nInput 'CLEAR' to clear the screen 😎\nInput 'STATS' to see your stats 📈",
         DOTTED_LINE
     );
 
