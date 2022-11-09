@@ -183,8 +183,6 @@ fn main() {
             wlt[1] += 1
         };
 
-        save_data(wlt);
-
         clear();
         println!(
             "🚀 [TIME: {:?}] 🚀\nConfirmed pick as: [{}]\nSuperA.I picks:    [{}]\n{result}",
@@ -193,5 +191,6 @@ fn main() {
             player_pick.to_string(),
             comp_pick.to_string()
         );
+        save_data(wlt);
     }
 }
