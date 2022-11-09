@@ -79,13 +79,13 @@ fn main() {
     }
 
     println!(
-        "{}\nWelcome to Rock, Paper, Scissors\n🚀 Blazingly Fast Edition 🚀\nInput 'QUIT' to quit & save 😁\nInput 'CLEAR' to clear the screen 😎\nInput 'STATS' to see your stats 📈",
+        "{}\n             Rock, Paper, Scissors\n          🚀 Blazingly Fast Edition 🚀\n{DOTTED_LINE}\nInput 'STATS' to see your stats 📈😎\nInput 'QUIT' or 'EXIT' to close the window✌️😁",
         DOTTED_LINE
     );
 
     'main_loop: loop {
         let player_pick = loop {
-            println!("Input your hand: ROCK🪨, PAPER📃 or SCISSORS✂️\n{DOTTED_LINE}");
+            println!("{DOTTED_LINE}\nROCK🪨, PAPER📃 or SCISSORS✂️ ?\n{DOTTED_LINE}");
             let mut input: String = String::new();
             stdin().read_line(&mut input).unwrap();
 
@@ -102,10 +102,10 @@ fn main() {
                     );
                     continue;
                 }
-                "QUIT" => {
+                "QUIT" | "EXIT" => {
                     clear();
-                    println!("Exiting. . .");
-                    thread::sleep(Duration::from_secs(1));
+                    println!("Closing. . .");
+                    thread::sleep(Duration::from_millis(500));
                     break 'main_loop;
                 }
                 _ => {
