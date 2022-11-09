@@ -147,7 +147,7 @@ fn main() {
 
         clear();
         println!(
-            "🚀 [TIME: {:?}] 🚀\nConfirmed pick as: [{}]\nSuperA.I picks:    [{}]\n{result}\n{DOTTED_LINE}",
+            "🚀 [TIME: {:?}] 🚀\nConfirmed pick as: [{}]\nSuperA.I picks:    [{}]\n{result}",
             // how many seconds has elapsed since the instant Instant was created
             instant.elapsed(),
             player_pick.to_string(),
