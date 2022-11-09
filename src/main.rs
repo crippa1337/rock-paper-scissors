@@ -2,7 +2,7 @@ use platform_dirs::AppDirs;
 use rand::Rng;
 use std::{
     fs::{self, File},
-    io::{stdin, BufRead, BufReader, Write},
+    io::{stdin, stdout, BufRead, BufReader, Write},
     thread,
     time::{Duration, Instant},
 };
@@ -26,6 +26,14 @@ impl Hands {
         }
     }
 
+    fn lose(&self) -> Hands {
+        match &self {
+            Hands::Rock => Hands::Paper,
+            Hands::Paper => Hands::Scissors,
+            Hands::Scissors => Hands::Rock,
+        }
+    }
+
     // to_string method, returns an equal String to a hand
     fn to_string(&self) -> String {
         match &self {
@@ -36,7 +44,7 @@ impl Hands {
     }
 }
 
-// function to randomly make a hand for the computer, returns a Hands instance
+// randomly makes a hand for the computer, returns a Hands instance
 fn computer_hand() -> Hands {
     // matches a random integer from 1 to 3 and returns a random Hands instance
     match rand::thread_rng().gen_range(1..=3) {
@@ -66,6 +74,7 @@ const WIN: &str = "You win! 🚀🤑🚀";
 const EVEN: &str = "It's even! 😐🤨😴";
 const LOSS: &str = "You lose! 💀😭🤬";
 fn main() {
+    let mut hard_mode = false;
     let mut wlt: [u32; 3] = [0, 0, 0];
 
     let stats_dirs = AppDirs::new(Some("rps_crippa"), false).unwrap();
@@ -106,16 +115,40 @@ fn main() {
                 }
                 "QUIT" | "EXIT" => {
                     clear();
-                    println!("Closing. . .");
+                    for i in "Closing. . .".chars() {
+                        print!("{i}");
+                        stdout().flush().unwrap();
+                        thread::sleep(Duration::from_millis(50));
+                    }
                     thread::sleep(Duration::from_millis(500));
                     break 'main_loop;
                 }
+                "RESET" => {
+                    clear();
+                    for i in "Resetting stats. . .\n".chars() {
+                        print!("{i}");
+                        stdout().flush().unwrap();
+                        thread::sleep(Duration::from_millis(50));
+                    }
+                    wlt = [0, 0, 0];
+                    save_data(wlt);
+                    clear();
+                    println!("WINS [{}]\nLOSSES [{}]\nTIES [{}]", wlt[0], wlt[1], wlt[2]);
+                    continue;
+                }
+                "HARD" => {
+                    clear();
+                    for i in "Hard mode activated . . .\n".chars() {
+                        print!("{i}");
+                        stdout().flush().unwrap();
+                        thread::sleep(Duration::from_millis(50));
+                    }
+                    hard_mode = true;
+                    continue;
+                }
                 _ => {
                     clear();
-                    println!(
-                        "{} is an invalid input, please try again.\n{DOTTED_LINE}",
-                        input
-                    );
+                    println!("{} is an invalid input, please try again.", input);
                     continue;
                 }
             };
@@ -123,7 +156,13 @@ fn main() {
         // instant variable set to an Instant created for benchmarking purposes
         let instant = Instant::now();
         // assign a random hand to comp_pick
-        let comp_pick = computer_hand();
+
+        let mut comp_pick = Hands::Paper;
+        if hard_mode == true {
+            comp_pick = player_pick.lose();
+        } else {
+            comp_pick = computer_hand();
+        };
 
         let result: String;
         // using PartialEq, see if player_pick (Hands) is equal to comp_pick (Hands)
