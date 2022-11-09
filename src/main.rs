@@ -1,4 +1,4 @@
-use clearscreen;
+//use clearscreen;
 use platform_dirs::AppDirs;
 use rand::Rng;
 use std::{
@@ -98,7 +98,7 @@ fn main() {
                     continue;
                 }
                 "CLEAR" => {
-                    clearscreen::clear().expect("Failed to clear screen");
+                    print!("\x1B[2J\x1B[1;1H");
                     continue;
                 }
                 "QUIT" => {
