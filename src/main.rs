@@ -60,6 +60,14 @@ fn clear() {
     print!("\x1B[2J\x1B[1;1H");
 }
 
+fn winrate(wlt: [u32; 3]) -> f32 {
+    let winrate = (wlt[0] as f32 / (wlt[0] + wlt[1]) as f32) * 100.0;
+    if winrate.is_nan() {
+        return 0.0;
+    }
+    return winrate;
+}
+
 fn save_data(wlt: [u32; 3]) {
     let stats_dirs = AppDirs::new(Some("rps_crippa"), false).unwrap();
     let path = stats_dirs.state_dir.join("stats.txt");
@@ -93,7 +101,7 @@ fn main() {
     }
 
     println!(
-        "{}\n             Rock, Paper, Scissors\n          🚀 Blazingly Fast Edition 🚀\n{DOTTED_LINE}\n'STATS' to see your stats 📈😎\n'HARD' to toggle hard mode 😈🤖\n'RESET' to reset stats ♻️🗑️\n'QUIT' or 'EXIT' to close the window✌️😁",
+        "{}\n             Rock, Paper, Scissors\n          🚀 Blazingly Fast Edition 🚀\n{DOTTED_LINE}\n'HELP' or 'INFO' for help 🤔📝\n'STATS' to see your stats 📈😎\n'HARD' to toggle hard mode 😈🤖\n'RESET' to reset stats ♻️🗑️\n'QUIT' or 'EXIT' to close the window✌️😁",
         DOTTED_LINE
     );
 
@@ -110,7 +118,13 @@ fn main() {
                 "SCISSORS" => Hands::Scissors,
                 "STATS" => {
                     clear();
-                    println!("WINS [{}]\nLOSSES [{}]\nTIES [{}]", wlt[0], wlt[1], wlt[2]);
+                    println!(
+                        "WINS   [{}]\nLOSSES [{}]\nTIES   [{}]\nWR     [{:.2}%]",
+                        wlt[0],
+                        wlt[1],
+                        wlt[2],
+                        winrate(wlt)
+                    );
                     continue;
                 }
                 "QUIT" | "EXIT" => {
@@ -133,7 +147,13 @@ fn main() {
                     wlt = [0, 0, 0];
                     save_data(wlt);
                     clear();
-                    println!("WINS [{}]\nLOSSES [{}]\nTIES [{}]", wlt[0], wlt[1], wlt[2]);
+                    println!(
+                        "WINS   [{}]\nLOSSES [{}]\nTIES   [{}]\nWR     [{:.2}%]",
+                        wlt[0],
+                        wlt[1],
+                        wlt[2],
+                        winrate(wlt)
+                    );
                     continue;
                 }
                 "HARD" => {
@@ -147,6 +167,11 @@ fn main() {
                     println!("Hard mode set to: {}", hard_mode);
                     continue;
                 }
+                "INFO" | "HELP" => {
+                    clear();
+                    println!("'HELP' or 'INFO' for help 🤔📝\n'STATS' to see your stats 📈😎\n'HARD' to toggle hard mode 😈🤖\n'RESET' to reset stats ♻️🗑️\n'QUIT' or 'EXIT' to close the window✌️😁");
+                    continue;
+                }
                 _ => {
                     clear();
                     println!("{} is an invalid input, please try again.", input);
@@ -154,11 +179,11 @@ fn main() {
                 }
             };
         };
-        // instant variable set to an Instant created for benchmarking purposes
-        let instant = Instant::now();
-        // assign a random hand to comp_pick
 
-        let mut comp_pick = Hands::Paper;
+        // instant variable created for benchmarking purposes
+        let instant = Instant::now();
+
+        let comp_pick: Hands;
         if hard_mode == true {
             comp_pick = player_pick.lose();
         } else {
