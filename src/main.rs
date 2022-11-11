@@ -81,7 +81,7 @@ fn slow_print(input: &str, delay: u32, newline: bool) {
 
 fn show_stats(wlt: [u32; 3]) {
     println!(
-        "WINS   [{}]\nLOSSES [{}]\nTIES   [{}]\nWR     [{:.2}%]",
+        "WINS   [{}]\nLOSSES [{}]\nTIES   [{}]\nWR     [{:?}%]",
         wlt[0],
         wlt[1],
         wlt[2],
@@ -263,6 +263,8 @@ fn main() {
             println!("Test concluded.\nTime elapsed: {:?}", instant.elapsed());
             println!("{DOTTED_LINE}");
             show_stats(wlt);
+            wlt = [0, 0, 0];
+            testing_mode = false;
         } else {
             clear();
             results(&mut wlt, player_pick, hard_mode, testing_mode);
