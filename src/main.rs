@@ -164,7 +164,7 @@ fn main() {
     }
 
     println!(
-        "{}\n             Rock, Paper, Scissors\n          🚀 Blazingly Fast Edition 🚀\n{DOTTED_LINE}\n'HELP' or 'INFO' for help 🤔📝\n'STATS' to see your stats 📈😎\n'HARD' to toggle hard mode 😈🤖\n'RESET' to reset stats ♻️🗑️\n'QUIT' or 'EXIT' to close the window✌️😁",
+        "{}\n             Rock, Paper, Scissors\n          🚀 Blazingly Fast Edition 🚀\n{DOTTED_LINE}\n'HELP' or 'INFO' for help 🤔📝\n'STATS' to see your stats 📈😎\n'RESET' to reset stats ♻️🗑️\n'HARD' to toggle hard mode 😈🤖\n'TEST' to create a test 🔬🧠\n'QUIT' or 'EXIT' to close the window✌️😁",
         DOTTED_LINE
     );
 
