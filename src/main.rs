@@ -236,7 +236,17 @@ fn main() {
                             stdin()
                                 .read_line(&mut buffer)
                                 .expect("Failed to get test_input");
-                            testing_iterations = buffer.trim().parse::<u32>().unwrap();
+                            testing_iterations = buffer.trim().parse().expect("Could not parse testing_iterations");
+                            let testing_iterations = match testing_iterations{
+                                if testing_iterations > 0 => {
+                                    testing_iterations
+                                    continue;
+                                }
+                                _ => {
+                                    println!("Invalid input");
+                                    continue;
+                                }
+                            }
                             break Hands::Rock;
                         }
 
