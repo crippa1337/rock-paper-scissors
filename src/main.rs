@@ -148,7 +148,7 @@ const LOSS: &str = "You lose! 💀😭🤬";
 fn main() {
     let mut hard_mode = false;
     let mut testing_mode = false;
-    let mut testing_iterations: u32 = 0;
+    let mut testing_iterations: u64 = 0;
     let mut wltp: [u32; 4] = [0, 0, 0, 0];
 
     let stats_dirs = AppDirs::new(Some("rps_crippa"), false).unwrap();
@@ -235,7 +235,7 @@ fn main() {
                                 .read_line(&mut buffer)
                                 .expect("Failed to get test_input");
                             let buffer = buffer.trim();
-                            let iteration_result = buffer.parse::<u32>();
+                            let iteration_result = buffer.parse::<u64>();
                             match iteration_result {
                                 Ok(x) => {
                                     println!("Testing . . .");
@@ -270,12 +270,20 @@ fn main() {
         };
         if testing_mode {
             let instant = Instant::now();
-            for _ in 0..testing_iterations {
+            let iterations_10 = (testing_iterations / 10) as u64;
+            let mut percentage = 1;
+            for i in 1..=testing_iterations {
                 let player_pick = computer_hand();
                 results(&mut wltp, player_pick, hard_mode, testing_mode);
+
+                if i == percentage * iterations_10 {
+                    print!("\r{percentage}0% done.");
+                    stdout().flush().unwrap();
+                    percentage += 1;
+                }
             }
             save_data(wltp);
-            println!("Test concluded.\nTime elapsed: {:?}", instant.elapsed());
+            println!("\nTest concluded.\nTime elapsed: {:?}", instant.elapsed());
             println!("{DOTTED_LINE}");
             show_stats(wltp);
             wltp = [0, 0, 0, 0];
