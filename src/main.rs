@@ -89,7 +89,13 @@ fn show_stats(wlt: [u32; 3]) {
     );
 }
 
-fn results(wlt: &mut [u32; 3], player_pick: Hands, hard_mode: bool, testing_mode: bool) {
+fn results(
+    wlt: &mut [u32; 3],
+    player_pick: Hands,
+    hard_mode: bool,
+    testing_mode: bool,
+    testing_iterations: u32,
+) {
     // instant variable created for benchmarking purposes
     let instant = Instant::now();
 
@@ -236,18 +242,20 @@ fn main() {
                             stdin()
                                 .read_line(&mut buffer)
                                 .expect("Failed to get test_input");
-                            testing_iterations = buffer.trim().parse().expect("Could not parse testing_iterations");
-                            let testing_iterations = match testing_iterations{
-                                if testing_iterations > 0 => {
-                                    testing_iterations
-                                    continue;
+                            testing_iterations = buffer
+                                .trim()
+                                .parse()
+                                .expect("Could not parse testing_iterations");
+                            match testing_iterations {
+                                _ if testing_iterations > 0 => {
+                                    testing_iterations;
+                                    break Hands::Rock;
                                 }
                                 _ => {
                                     println!("Invalid input");
                                     continue;
                                 }
-                            }
-                            break Hands::Rock;
+                            };
                         }
 
                         _ => {
@@ -267,7 +275,13 @@ fn main() {
             let instant = Instant::now();
             for _ in 0..testing_iterations {
                 let player_pick = computer_hand();
-                results(&mut wlt, player_pick, hard_mode, testing_mode);
+                results(
+                    &mut wlt,
+                    player_pick,
+                    hard_mode,
+                    testing_mode,
+                    testing_iterations,
+                );
             }
             save_data(wlt);
             println!("Test concluded.\nTime elapsed: {:?}", instant.elapsed());
@@ -277,7 +291,13 @@ fn main() {
             testing_mode = false;
         } else {
             clear();
-            results(&mut wlt, player_pick, hard_mode, testing_mode);
+            results(
+                &mut wlt,
+                player_pick,
+                hard_mode,
+                testing_mode,
+                testing_iterations,
+            );
             save_data(wlt);
         }
     }
