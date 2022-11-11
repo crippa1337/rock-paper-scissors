@@ -68,6 +68,67 @@ fn winrate(wlt: [u32; 3]) -> f32 {
     return winrate;
 }
 
+fn slow_print(input: &str, delay: u32, newline: bool) {
+    for i in input.chars() {
+        print!("{i}");
+        stdout().flush().unwrap();
+        thread::sleep(Duration::from_millis(delay as u64));
+    }
+    if newline {
+        println!();
+    }
+}
+
+fn show_stats(wlt: [u32; 3]) {
+    println!(
+        "WINS   [{}]\nLOSSES [{}]\nTIES   [{}]\nWR     [{:.2}%]",
+        wlt[0],
+        wlt[1],
+        wlt[2],
+        winrate(wlt)
+    );
+}
+
+fn results(wlt: &mut [u32; 3], player_pick: Hands, hard_mode: bool, testing_mode: bool) {
+    // instant variable created for benchmarking purposes
+    let instant = Instant::now();
+
+    let comp_pick: Hands;
+    if hard_mode == true {
+        comp_pick = player_pick.lose();
+    } else {
+        comp_pick = computer_hand();
+    };
+
+    let result: String;
+    // using PartialEq, see if player_pick (Hands) is equal to comp_pick (Hands)
+    if player_pick == comp_pick {
+        // set result to even since both inputs are the same
+        result = String::from(EVEN);
+        wlt[2] += 1
+    // see if the winning matchup of player_pick is equal to comp_pick
+    } else if player_pick.win() == comp_pick {
+        // set result to win since the winning matchup is achieved
+        result = String::from(WIN);
+        wlt[0] += 1
+    // only case left is if the player hasn't won or isn't even against the computer, which means it's a loss
+    } else {
+        // set result to loss
+        result = String::from(LOSS);
+        wlt[1] += 1
+    };
+
+    if !testing_mode {
+        println!(
+            "🚀 [TIME: {:?}] 🚀\nConfirmed pick as: [{}]\nSuperA.I picks:    [{}]\n{result}",
+            // how many seconds has elapsed since the instant Instant was created
+            instant.elapsed(),
+            player_pick.to_string(),
+            comp_pick.to_string()
+        );
+    }
+}
+
 fn save_data(wlt: [u32; 3]) {
     let stats_dirs = AppDirs::new(Some("rps_crippa"), false).unwrap();
     let path = stats_dirs.state_dir.join("stats.txt");
@@ -83,6 +144,8 @@ const EVEN: &str = "It's even! 😐🤨😴";
 const LOSS: &str = "You lose! 💀😭🤬";
 fn main() {
     let mut hard_mode = false;
+    let mut testing_mode = false;
+    let mut testing_iterations: u32 = 0;
     let mut wlt: [u32; 3] = [0, 0, 0];
 
     let stats_dirs = AppDirs::new(Some("rps_crippa"), false).unwrap();
@@ -107,15 +170,15 @@ fn main() {
 
     'main_loop: loop {
         let player_pick = loop {
-            println!("{DOTTED_LINE}\nROCK🪨, PAPER📃 or SCISSORS✂️ ?\n{DOTTED_LINE}");
+            println!("{DOTTED_LINE}\n(R)OCK🪨, (P)APER📃 or (S)CISSORS✂️ ?\n{DOTTED_LINE}");
             let mut input: String = String::new();
             stdin().read_line(&mut input).unwrap();
 
             let input = String::from(input.to_uppercase().trim());
             break match input.as_str() {
-                "ROCK" => Hands::Rock,
-                "PAPER" => Hands::Paper,
-                "SCISSORS" => Hands::Scissors,
+                "R" | "ROCK" => Hands::Rock,
+                "P" | "PAPER" => Hands::Paper,
+                "S" | "SCISSORS" => Hands::Scissors,
                 "STATS" => {
                     clear();
                     println!(
@@ -129,40 +192,23 @@ fn main() {
                 }
                 "QUIT" | "EXIT" => {
                     clear();
-                    for i in "Closing. . .".chars() {
-                        print!("{i}");
-                        stdout().flush().unwrap();
-                        thread::sleep(Duration::from_millis(50));
-                    }
+                    slow_print("Closing . . .", 10, false);
                     thread::sleep(Duration::from_millis(500));
                     break 'main_loop;
                 }
                 "RESET" => {
                     clear();
-                    for i in "Resetting stats. . .\n".chars() {
-                        print!("{i}");
-                        stdout().flush().unwrap();
-                        thread::sleep(Duration::from_millis(50));
-                    }
+                    slow_print("Resetting stats . . .", 10, true);
+                    thread::sleep(Duration::from_millis(500));
                     wlt = [0, 0, 0];
                     save_data(wlt);
                     clear();
-                    println!(
-                        "WINS   [{}]\nLOSSES [{}]\nTIES   [{}]\nWR     [{:.2}%]",
-                        wlt[0],
-                        wlt[1],
-                        wlt[2],
-                        winrate(wlt)
-                    );
+                    show_stats(wlt);
                     continue;
                 }
                 "HARD" => {
                     clear();
-                    for i in "Toggling hard mode . . .\n".chars() {
-                        print!("{i}");
-                        stdout().flush().unwrap();
-                        thread::sleep(Duration::from_millis(50));
-                    }
+                    slow_print("Toggling hard mode . . .", 10, true);
                     hard_mode ^= true;
                     println!("Hard mode set to: {}", hard_mode);
                     continue;
@@ -172,6 +218,34 @@ fn main() {
                     println!("'HELP' or 'INFO' for help 🤔📝\n'STATS' to see your stats 📈😎\n'HARD' to toggle hard mode 😈🤖\n'RESET' to reset stats ♻️🗑️\n'QUIT' or 'EXIT' to close the window✌️😁");
                     continue;
                 }
+                "TEST" => {
+                    clear();
+                    slow_print("WARNING! Enabling testing mode will purge your stats\nYou cannot cancel until the test is concluded\nInput any key to cancel or 'Y' to continue", 10, true);
+                    let mut testing_input = String::new();
+                    stdin()
+                        .read_line(&mut testing_input)
+                        .expect("Failed to get test_input");
+                    let testing_input = testing_input.trim().to_uppercase();
+                    match testing_input.as_str() {
+                        "Y" => {
+                            clear();
+                            wlt = [0, 0, 0];
+                            testing_mode = true;
+                            println!("Amount of test iterations?");
+                            let mut buffer = String::new();
+                            stdin()
+                                .read_line(&mut buffer)
+                                .expect("Failed to get test_input");
+                            testing_iterations = buffer.trim().parse::<u32>().unwrap();
+                            break Hands::Rock;
+                        }
+
+                        _ => {
+                            testing_mode = false;
+                            continue;
+                        }
+                    }
+                }
                 _ => {
                     clear();
                     println!("{} is an invalid input, please try again.", input);
@@ -179,43 +253,20 @@ fn main() {
                 }
             };
         };
-
-        // instant variable created for benchmarking purposes
-        let instant = Instant::now();
-
-        let comp_pick: Hands;
-        if hard_mode == true {
-            comp_pick = player_pick.lose();
+        if testing_mode {
+            let instant = Instant::now();
+            for _ in 0..testing_iterations {
+                let player_pick = computer_hand();
+                results(&mut wlt, player_pick, hard_mode, testing_mode);
+            }
+            save_data(wlt);
+            println!("Test concluded.\nTime elapsed: {:?}", instant.elapsed());
+            println!("{DOTTED_LINE}");
+            show_stats(wlt);
         } else {
-            comp_pick = computer_hand();
-        };
-
-        let result: String;
-        // using PartialEq, see if player_pick (Hands) is equal to comp_pick (Hands)
-        if player_pick == comp_pick {
-            // set result to even since both inputs are the same
-            result = String::from(EVEN);
-            wlt[2] += 1
-        // see if the winning matchup of player_pick is equal to comp_pick
-        } else if player_pick.win() == comp_pick {
-            // set result to win since the winning matchup is achieved
-            result = String::from(WIN);
-            wlt[0] += 1
-        // only case left is if the player hasn't won or isn't even against the computer, which means it's a loss
-        } else {
-            // set result to loss
-            result = String::from(LOSS);
-            wlt[1] += 1
-        };
-
-        clear();
-        println!(
-            "🚀 [TIME: {:?}] 🚀\nConfirmed pick as: [{}]\nSuperA.I picks:    [{}]\n{result}",
-            // how many seconds has elapsed since the instant Instant was created
-            instant.elapsed(),
-            player_pick.to_string(),
-            comp_pick.to_string()
-        );
-        save_data(wlt);
+            clear();
+            results(&mut wlt, player_pick, hard_mode, testing_mode);
+            save_data(wlt);
+        }
     }
 }
