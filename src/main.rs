@@ -60,8 +60,8 @@ fn clear() {
     print!("\x1B[2J\x1B[1;1H");
 }
 
-fn winrate(wlt: [u32; 3]) -> f32 {
-    let winrate = (wlt[0] as f32 / (wlt[0] + wlt[1]) as f32) * 100.0;
+fn winrate(wltp: [u32; 4]) -> f32 {
+    let winrate = (wltp[0] as f32 / (wltp[0] + wltp[1]) as f32) * 100.0;
     if winrate.is_nan() {
         return 0.0;
     }
@@ -79,23 +79,18 @@ fn slow_print(input: &str, delay: u32, newline: bool) {
     }
 }
 
-fn show_stats(wlt: [u32; 3]) {
+fn show_stats(wltp: [u32; 4]) {
     println!(
-        "WINS   [{}]\nLOSSES [{}]\nTIES   [{}]\nWR     [{:?}%]",
-        wlt[0],
-        wlt[1],
-        wlt[2],
-        winrate(wlt)
+        "WINS   [{}]\nLOSSES [{}]\nTIES   [{}]\nWR     [{:?}%]\nTOTAL  [{}]",
+        wltp[0],
+        wltp[1],
+        wltp[2],
+        winrate(wltp),
+        wltp[3]
     );
 }
 
-fn results(
-    wlt: &mut [u32; 3],
-    player_pick: Hands,
-    hard_mode: bool,
-    testing_mode: bool,
-    testing_iterations: u32,
-) {
+fn results(wltp: &mut [u32; 4], player_pick: Hands, hard_mode: bool, testing_mode: bool) {
     // instant variable created for benchmarking purposes
     let instant = Instant::now();
 
@@ -106,22 +101,23 @@ fn results(
         comp_pick = computer_hand();
     };
 
+    wltp[3] += 1;
     let result: String;
     // using PartialEq, see if player_pick (Hands) is equal to comp_pick (Hands)
     if player_pick == comp_pick {
         // set result to even since both inputs are the same
         result = String::from(EVEN);
-        wlt[2] += 1
+        wltp[2] += 1
     // see if the winning matchup of player_pick is equal to comp_pick
     } else if player_pick.win() == comp_pick {
         // set result to win since the winning matchup is achieved
         result = String::from(WIN);
-        wlt[0] += 1
+        wltp[0] += 1
     // only case left is if the player hasn't won or isn't even against the computer, which means it's a loss
     } else {
         // set result to loss
         result = String::from(LOSS);
-        wlt[1] += 1
+        wltp[1] += 1
     };
 
     if !testing_mode {
@@ -135,13 +131,14 @@ fn results(
     }
 }
 
-fn save_data(wlt: [u32; 3]) {
+fn save_data(wltp: [u32; 4]) {
     let stats_dirs = AppDirs::new(Some("rps_crippa"), false).unwrap();
     let path = stats_dirs.state_dir.join("stats.txt");
 
     fs::create_dir_all(&stats_dirs.state_dir).unwrap();
     let file = File::create(&path).unwrap();
-    write!(&file, "{}\n{}\n{}", wlt[0], wlt[1], wlt[2]).expect("Failed to write to file");
+    write!(&file, "{}\n{}\n{}\n{}", wltp[0], wltp[1], wltp[2], wltp[3])
+        .expect("Failed to write to file");
 }
 
 const DOTTED_LINE: &str = "------------------------------------------------";
@@ -152,7 +149,7 @@ fn main() {
     let mut hard_mode = false;
     let mut testing_mode = false;
     let mut testing_iterations: u32 = 0;
-    let mut wlt: [u32; 3] = [0, 0, 0];
+    let mut wltp: [u32; 4] = [0, 0, 0, 0];
 
     let stats_dirs = AppDirs::new(Some("rps_crippa"), false).unwrap();
     let path = stats_dirs.state_dir.join("stats.txt");
@@ -164,7 +161,7 @@ fn main() {
         for line in f.lines() {
             let line = line.unwrap();
             let line = line.parse::<u32>().unwrap();
-            wlt[index] = line;
+            wltp[index] = line;
             index += 1;
         }
     }
@@ -187,13 +184,7 @@ fn main() {
                 "S" | "SCISSORS" => Hands::Scissors,
                 "STATS" => {
                     clear();
-                    println!(
-                        "WINS   [{}]\nLOSSES [{}]\nTIES   [{}]\nWR     [{:.2}%]",
-                        wlt[0],
-                        wlt[1],
-                        wlt[2],
-                        winrate(wlt)
-                    );
+                    show_stats(wltp);
                     continue;
                 }
                 "QUIT" | "EXIT" => {
@@ -206,10 +197,10 @@ fn main() {
                     clear();
                     slow_print("Resetting stats . . .", 10, true);
                     thread::sleep(Duration::from_millis(500));
-                    wlt = [0, 0, 0];
-                    save_data(wlt);
+                    wltp = [0, 0, 0, 0];
+                    save_data(wltp);
                     clear();
-                    show_stats(wlt);
+                    show_stats(wltp);
                     continue;
                 }
                 "HARD" => {
@@ -221,12 +212,12 @@ fn main() {
                 }
                 "INFO" | "HELP" => {
                     clear();
-                    println!("'HELP' or 'INFO' for help 🤔📝\n'STATS' to see your stats 📈😎\n'HARD' to toggle hard mode 😈🤖\n'RESET' to reset stats ♻️🗑️\n'QUIT' or 'EXIT' to close the window✌️😁");
+                    println!("'HELP' or 'INFO' for help 🤔📝\n'STATS' to see your stats 📈😎\n'RESET' to reset stats ♻️🗑️\n'HARD' to toggle hard mode 😈🤖\n'TEST' to create a test 🔬🧠\n'QUIT' or 'EXIT' to close the window✌️😁");
                     continue;
                 }
                 "TEST" => {
                     clear();
-                    slow_print("WARNING! Enabling testing mode will purge your stats\nYou cannot cancel until the test is concluded\nInput any key to cancel or 'Y' to continue", 10, true);
+                    println!("WARNING! Enabling testing mode will purge your stats.\nYou cannot cancel until the test is concluded.\nInput any key to cancel or 'Y' to continue.");
                     let mut testing_input = String::new();
                     stdin()
                         .read_line(&mut testing_input)
@@ -235,30 +226,36 @@ fn main() {
                     match testing_input.as_str() {
                         "Y" => {
                             clear();
-                            wlt = [0, 0, 0];
+                            wltp = [0, 0, 0, 0];
                             testing_mode = true;
-                            println!("Amount of test iterations?");
+
+                            println!("Stats reset.\nInput your desired amount of tests:");
                             let mut buffer = String::new();
                             stdin()
                                 .read_line(&mut buffer)
                                 .expect("Failed to get test_input");
-                            testing_iterations = buffer
-                                .trim()
-                                .parse()
-                                .expect("Could not parse testing_iterations");
-                            match testing_iterations {
-                                _ if testing_iterations > 0 => {
-                                    testing_iterations;
+                            let buffer = buffer.trim();
+                            let iteration_result = buffer.parse::<u32>();
+                            match iteration_result {
+                                Ok(x) => {
+                                    println!("Testing . . .");
+                                    testing_iterations = x;
                                     break Hands::Rock;
                                 }
-                                _ => {
-                                    println!("Invalid input");
+                                Err(_) => {
+                                    clear();
+                                    println!(
+                                        "{} is an invalid input.\nExiting test mode . . .",
+                                        buffer
+                                    );
+                                    testing_mode = false;
                                     continue;
                                 }
                             };
                         }
 
                         _ => {
+                            println!("Exiting test mode . . .");
                             testing_mode = false;
                             continue;
                         }
@@ -275,30 +272,18 @@ fn main() {
             let instant = Instant::now();
             for _ in 0..testing_iterations {
                 let player_pick = computer_hand();
-                results(
-                    &mut wlt,
-                    player_pick,
-                    hard_mode,
-                    testing_mode,
-                    testing_iterations,
-                );
+                results(&mut wltp, player_pick, hard_mode, testing_mode);
             }
-            save_data(wlt);
+            save_data(wltp);
             println!("Test concluded.\nTime elapsed: {:?}", instant.elapsed());
             println!("{DOTTED_LINE}");
-            show_stats(wlt);
-            wlt = [0, 0, 0];
+            show_stats(wltp);
+            wltp = [0, 0, 0, 0];
             testing_mode = false;
         } else {
             clear();
-            results(
-                &mut wlt,
-                player_pick,
-                hard_mode,
-                testing_mode,
-                testing_iterations,
-            );
-            save_data(wlt);
+            results(&mut wltp, player_pick, hard_mode, testing_mode);
+            save_data(wltp);
         }
     }
 }
