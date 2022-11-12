@@ -270,14 +270,14 @@ fn main() {
         };
         if testing_mode {
             let instant = Instant::now();
-            let iterations_10 = (testing_iterations / 10) as u64;
+            let iterations_100 = (testing_iterations / 100) as u64;
             let mut percentage = 1;
             for i in 1..=testing_iterations {
                 let player_pick = computer_hand();
                 results(&mut wltp, player_pick, hard_mode, testing_mode);
 
-                if i == percentage * iterations_10 {
-                    print!("\r{percentage}0% done.");
+                if i == percentage * iterations_100 {
+                    print!("\r{percentage}%% done.");
                     stdout().flush().unwrap();
                     percentage += 1;
                 }
