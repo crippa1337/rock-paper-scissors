@@ -277,7 +277,7 @@ fn main() {
                 results(&mut wltp, player_pick, hard_mode, testing_mode);
 
                 if i == percentage * iterations_100 {
-                    print!("\r{percentage}%% done.");
+                    print!("\r{percentage}% done.");
                     stdout().flush().unwrap();
                     percentage += 1;
                 }
